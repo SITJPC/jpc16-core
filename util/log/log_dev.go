@@ -4,8 +4,10 @@ package log
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gookit/color"
@@ -24,12 +26,14 @@ func PrintTime() {
 	timeColor.Print(now)
 }
 
-func PrintCaller() {
-	pc, _, line, ok := runtime.Caller(2)
+func PrintCaller(skip int) {
+	pc, _, line, ok := runtime.Caller(skip)
 	if !ok {
 		panic("No caller information")
 	}
-	callerColor.Print(runtime.FuncForPC(pc).Name() + ":" + strconv.Itoa(line))
+	name := runtime.FuncForPC(pc).Name()
+	name = name[strings.LastIndex(name, "/")+1:]
+	callerColor.Print(name + ":" + strconv.Itoa(line))
 }
 
 func PrintSeparator() {
@@ -42,7 +46,7 @@ func Debug(args ...any) {
 
 	// Print caller
 	PrintSeparator()
-	PrintCaller()
+	PrintCaller(2)
 
 	// Print message
 	if v, ok := args[0].(string); ok {
@@ -71,19 +75,33 @@ func Debug(args ...any) {
 	println()
 }
 
-func Error(message string, err error) {
+func Error(message string, err error, fatal ...bool) {
 	// Print time
 	PrintTime()
 
 	// Print caller
 	PrintSeparator()
-	PrintCaller()
+	if len(fatal) > 0 {
+		PrintCaller(3)
+	} else {
+		PrintCaller(2)
+	}
 
 	// Print message
 	PrintSeparator()
 	messageColor.Print(message)
 
 	// Print error
-	PrintSeparator()
-	argErrorColor.Println(err.Error())
+	if strings.Index(err.Error(), "\n") != -1 {
+		println()
+		argErrorColor.Println(err.Error())
+	} else {
+		PrintSeparator()
+		argErrorColor.Println(err.Error())
+	}
+}
+
+func Fatal(message string, err error) {
+	Error(message, err, true)
+	os.Exit(1)
 }

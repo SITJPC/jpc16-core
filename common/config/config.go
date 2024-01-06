@@ -3,15 +3,13 @@ package config
 import (
 	"os"
 
-	"github.com/davecgh/go-spew/spew"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
+	"jpc16-core/common"
 	"jpc16-core/type/common"
+	"jpc16-core/util/log"
 	"jpc16-core/util/text"
 )
-
-const tag = "config"
 
 func Init() {
 	// * Declare struct
@@ -20,18 +18,17 @@ func Init() {
 	// * Load configurations to struct
 	yml, err := os.ReadFile("config.yaml")
 	if err != nil {
-
+		log.Fatal("Unable to read configuration file", err)
 	}
 	if err := yaml.Unmarshal(yml, config); err != nil {
-		logrus.Fatal("UNABLE TO PARSE YAML CONFIGURATION FILE")
+		log.Fatal("Unable to parse configuration file", err)
 	}
 
 	// * Validate configurations
 	if err := text.Validator.Struct(config); err != nil {
-		logrus.Fatal("INVALID CONFIGURATION: " + err.Error())
+		log.Fatal("Invalid configuration file", err)
 	}
 
-	// Apply log level configuration
-	logrus.SetLevel(logrus.Level(*config.LogLevel))
-	spew.Config = spew.ConfigState{Indent: "  "}
+	// * Set global config
+	c.Config = config
 }

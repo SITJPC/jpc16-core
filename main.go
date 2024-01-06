@@ -1,12 +1,11 @@
 package main
 
 import (
-	"errors"
-
-	"jpc16-core/util/log"
+	"jpc16-core/common/config"
+	"jpc16-core/common/fiber"
 )
 
 func main() {
-	log.Debug("Hello, World!", "ehllo", 2111, "aaa", errors.New("aaa"))
-	log.Error("Unable to run", errors.New("aaa"))
+	config.Init()
+	fiber.Init()
 }
