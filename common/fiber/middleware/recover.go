@@ -9,7 +9,7 @@ import (
 )
 
 func Recover() fiber.Handler {
-	if *c.Config.Environment == 1 {
+	if *cc.Config.Environment == 1 {
 		return func(c *fiber.Ctx) error {
 			defer logrus.Debug("CALL " + c.Method() + " " + c.Path() + " " + string(c.Request().Body()))
 			return c.Next()

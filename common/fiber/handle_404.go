@@ -8,10 +8,10 @@ import (
 	"jpc16-core/type/response"
 )
 
-func NotFoundHandler(ctx *fiber.Ctx) error {
-	return ctx.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{
+func NotFoundHandler(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusNotFound).JSON(response.ErrorResponse{
 		Success: false,
-		Message: fmt.Sprintf("%s %s not found", ctx.Method(), ctx.Path()),
+		Message: fmt.Sprintf("%s %s not found", c.Method(), c.Path()),
 		Error:   "404_NOT_FOUND",
 	})
 }

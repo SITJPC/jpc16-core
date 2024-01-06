@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// @title 		JPC16 Core API
+// @title 		   JPC16 Core API
 // @version        1.0
 
 // @contact.name   API Support

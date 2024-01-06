@@ -2,13 +2,13 @@ package fiber
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/sirupsen/logrus"
 
-	"jpc16-core/common"
+	cc "jpc16-core/common"
 	"jpc16-core/common/fiber/middleware"
 	"jpc16-core/common/swagger"
 	"jpc16-core/endpoint"
 	"jpc16-core/type/response"
+	"jpc16-core/util/log"
 	"jpc16-core/util/text"
 )
 
@@ -39,8 +39,8 @@ func Init() {
 	app.Use(NotFoundHandler)
 
 	// Startup
-	err := app.Listen(*c.Config.Address)
+	err := app.Listen(*cc.Config.Address)
 	if err != nil {
-		logrus.Fatal(err.Error())
+		log.Fatal("Unable to start fiber instance", err)
 	}
 }

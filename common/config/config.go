@@ -30,5 +30,5 @@ func Init() {
 	}
 
 	// * Set global config
-	c.Config = config
+	cc.Config = config
 }

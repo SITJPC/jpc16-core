@@ -1,5 +1,10 @@
-package c
+package cc
 
-import "jpc16-core/type/common"
+import (
+	"go.mongodb.org/mongo-driver/mongo"
+
+	"jpc16-core/type/common"
+)
 
 var Config *common.Config
+var Database *mongo.Database
