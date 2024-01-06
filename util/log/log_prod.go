@@ -20,5 +20,5 @@ func Error(message string, err error) {
 		panic("No caller information")
 	}
 	fmt.Print(" " + runtime.FuncForPC(pc).Name() + ":" + strconv.Itoa(line) + "]")
-	fmt.Print(" " + message + " | " + err.Error())
+	fmt.Println(" " + message + " | " + err.Error())
 }

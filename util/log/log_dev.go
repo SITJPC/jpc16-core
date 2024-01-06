@@ -85,5 +85,5 @@ func Error(message string, err error) {
 
 	// Print error
 	PrintSeparator()
-	argErrorColor.Print(err.Error())
+	argErrorColor.Println(err.Error())
 }
