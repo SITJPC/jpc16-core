@@ -92,6 +92,10 @@ func Error(message string, err error, fatal ...bool) {
 	messageColor.Print(message)
 
 	// Print error
+	if err == nil {
+		println()
+		return
+	}
 	if strings.Index(err.Error(), "\n") != -1 {
 		println()
 		argErrorColor.Println(err.Error())

@@ -2,3 +2,6 @@
 .vscode
 .DS_Store
 /config.yaml
+/local
+/common/swagger/*
+!/common/swagger/swagger.go

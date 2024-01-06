@@ -5,6 +5,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"jpc16-core/common"
+	"jpc16-core/common/fiber/middleware"
+	"jpc16-core/common/swagger"
+	"jpc16-core/endpoint"
 	"jpc16-core/type/response"
 	"jpc16-core/util/text"
 )
@@ -22,6 +25,15 @@ func Init() {
 	app.All("/", func(c *fiber.Ctx) error {
 		return c.JSON(response.Info("JPC16 API ROOT"))
 	})
+
+	// Register API endpoints
+	apiGroup := app.Group("api/")
+	apiGroup.Use(middleware.Recover())
+	endpoint.Init(apiGroup)
+
+	// Register swagger endpoint
+	swaggerGroup := app.Group("swagger/")
+	swagger.Init(swaggerGroup)
 
 	// Register not found endpoint
 	app.Use(NotFoundHandler)

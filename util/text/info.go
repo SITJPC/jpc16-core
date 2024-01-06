@@ -2,12 +2,14 @@ package text
 
 import (
 	"runtime/debug"
+
+	"jpc16-core/util/log"
 )
 
 var Commit = func() string {
 	if info, ok := debug.ReadBuildInfo(); ok {
-		hash := "none"
-		modified := "/u" // Unknown build
+		var hash string
+		var modified string
 		for _, setting := range info.Settings {
 			if setting.Key == "vcs.revision" {
 				hash = setting.Value[:7]
@@ -19,6 +21,9 @@ var Commit = func() string {
 					modified = "/d" // Dirty build
 				}
 			}
+		}
+		if hash == "" || modified == "" {
+			log.Fatal("Failed to get build info", nil)
 		}
 		return hash + modified + "/" + Build
 	}
