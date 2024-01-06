@@ -4,11 +4,21 @@ import "runtime/debug"
 
 var Commit = func() string {
 	if info, ok := debug.ReadBuildInfo(); ok {
+		var hash string
+		var modified string
 		for _, setting := range info.Settings {
 			if setting.Key == "vcs.revision" {
-				return setting.Value[:7]
+				hash = setting.Value[:7]
+			}
+			if setting.Key == "vcs.modified" {
+				if setting.Value == "false" {
+					modified = "-c" // Clean build
+				} else {
+					modified = "-d" // Dirty build
+				}
 			}
 		}
+		return hash + modified
 	}
 	return ""
 }()
