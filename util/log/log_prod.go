@@ -4,6 +4,7 @@ package log
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"strconv"
 	"time"
@@ -12,13 +13,22 @@ import (
 func Debug(args ...any) {
 }
 
-func Error(message string, err error) {
+func Error(message string, err error, fatal ...bool) {
 	now := time.Now().Format("03:04:05 PM")
 	fmt.Print("[" + now)
-	pc, _, line, ok := runtime.Caller(1)
+	skip := 1
+	if len(fatal) > 0 && fatal[0] {
+		skip = 2
+	}
+	pc, _, line, ok := runtime.Caller(skip)
 	if !ok {
 		panic("No caller information")
 	}
 	fmt.Print(" " + runtime.FuncForPC(pc).Name() + ":" + strconv.Itoa(line) + "]")
 	fmt.Println(" " + message + " | " + err.Error())
+}
+
+func Fatal(message string, err error) {
+	Error(message, err, true)
+	os.Exit(1)
 }
