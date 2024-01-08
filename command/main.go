@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"jpc16-core/command/function"
 	"jpc16-core/common/config"
 	"jpc16-core/common/mng"
-	"os"
 )
 
 func main() {
@@ -19,9 +20,12 @@ func main() {
 	switch os.Args[1] {
 	case "clear":
 		function.Clear()
-	case "import":
-		function.Import()
-	case "export":
-		function.Export()
+	case "player":
+		if os.Args[2] == "import" {
+			function.PlayerImport()
+		}
+		if os.Args[2] == "export" {
+			function.PlayerExport()
+		}
 	}
 }

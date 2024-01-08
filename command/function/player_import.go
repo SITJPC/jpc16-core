@@ -4,21 +4,25 @@ import (
 	"encoding/csv"
 	"errors"
 	"flag"
+	"os"
+	"strings"
+
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
 	"jpc16-core/common/mng"
 	"jpc16-core/type/collection"
 	"jpc16-core/util/log"
+	"jpc16-core/util/text"
 	"jpc16-core/util/value"
-	"os"
 )
 
-func Import() {
+func PlayerImport() {
 	// * Parse flags
 	fs := flag.NewFlagSet("import", flag.ContinueOnError)
 	file := fs.String("file", "", "File path to import")
-	if err := fs.Parse(os.Args[2:]); err != nil {
+	if err := fs.Parse(os.Args[3:]); err != nil {
 		log.Fatal("Failed to parse flags", err)
 	}
 
@@ -64,10 +68,26 @@ func Import() {
 			}
 		}
 
+		// * Make first letter uppercase
+		nickname := strings.Title(row[0])
+
+		// * Generate pin
+		var pin *string
+		for {
+			pin = text.Random(text.RandomSet.Num, 6)
+			var player collection.Player
+			if err := mng.PlayerCollection.First(bson.M{"pin": pin}, &player); errors.Is(err, mongo.ErrNoDocuments) {
+				break
+			} else if err != nil {
+				log.Fatal("Failed to query player for pin check", err)
+			}
+		}
+
 		// * Create player
 		player := &collection.Player{
-			Nickname: value.Ptr(row[0]),
+			Nickname: &nickname,
 			GroupId:  group.ID,
+			Pin:      pin,
 		}
 		if err := mng.PlayerCollection.Create(player); err != nil {
 			log.Fatal("Failed to create player", err)

@@ -3,16 +3,18 @@ package function
 import (
 	"encoding/csv"
 	"fmt"
+	"os"
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"jpc16-core/common/mng"
 	"jpc16-core/type/collection"
 	"jpc16-core/util/log"
-	"os"
-	"time"
 )
 
-func Export() {
+func PlayerExport() {
 	// * Find groups
 	var groups []*collection.Group
 	if err := mng.GroupCollection.SimpleFind(&groups, bson.M{}); err != nil {

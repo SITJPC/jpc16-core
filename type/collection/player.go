@@ -12,6 +12,7 @@ type Player struct {
 	mh.ModelBase `bson:"-,inline"`
 	Nickname     *string             `bson:"nickname,omitempty"`
 	GroupId      *primitive.ObjectID `bson:"groupId,omitempty"`
+	Pin          *string             `bson:"pin,omitempty"`
 }
 
 func (r *Player) Collection() *mgm.Collection {
