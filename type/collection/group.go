@@ -10,7 +10,7 @@ import (
 type Group struct {
 	mh.ModelBase `bson:"-,inline"`
 	Name         *string `bson:"name,omitempty"`
-	Number       *int    `bson:"number,omitempty"`
+	Number       *int64  `bson:"number,omitempty"`
 }
 
 func (r *Group) Collection() *mgm.Collection {
