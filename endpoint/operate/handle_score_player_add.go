@@ -2,6 +2,7 @@ package operateEndpoint
 
 import (
 	"github.com/gofiber/fiber/v2"
+	groupRepo "jpc16-core/repository/group"
 
 	"jpc16-core/common/mng"
 	playerRepo "jpc16-core/repository/player"
@@ -35,10 +36,16 @@ func HandleAddPlayerScore(c *fiber.Ctx) error {
 		return err
 	}
 
+	//* Find group
+	group, err := groupRepo.FindGroupId(body.GroupNo)
+	if err != nil {
+		return err
+	}
+
 	// * Find player
-	player, errr := playerRepo.FindByInfo(*body.Nickname, *body.GroupNo)
-	if errr != nil {
-		return errr
+	player, err := playerRepo.FindByInfo(*body.Nickname, group.ID)
+	if err != nil {
+		return err
 	}
 
 	// * Create score
