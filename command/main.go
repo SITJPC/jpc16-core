@@ -27,5 +27,9 @@ func main() {
 		if os.Args[2] == "export" {
 			function.PlayerExport()
 		}
+	case "game":
+		if os.Args[2] == "import" {
+			function.GameImport()
+		}
 	}
 }

@@ -12,7 +12,7 @@ type Score struct {
 	mh.ModelBase `bson:"-,inline"`
 	PlayerId     *primitive.ObjectID `bson:"playerId,omitempty"`
 	GameId       *primitive.ObjectID `bson:"gameId,omitempty"`
-	Score        *int                `bson:"score,omitempty"`
+	Score        *int64              `bson:"score,omitempty"`
 }
 
 func (r *Score) Collection() *mgm.Collection {

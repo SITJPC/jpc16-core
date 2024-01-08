@@ -1,7 +1,7 @@
 package payload
 
 type ScorePlayerAdd struct {
-	Token    *string `json:"token"`
-	Nickname *string `json:"nickname"`
-	Score    *int64  `json:"score"`
+	GroupNo  *int64  `json:"groupNo" validate:"required"`
+	Nickname *string `json:"nickname" validate:"required"`
+	Score    *int64  `json:"score" validate:"required"`
 }
