@@ -42,6 +42,7 @@ func Import() {
 	}
 
 	for _, row := range rows {
+		// * Skip if empty nickname
 		if row[0] == "" {
 			continue
 		}

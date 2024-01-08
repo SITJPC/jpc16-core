@@ -9,3 +9,7 @@
   ```
   go run -buildvcs=true ./command import --file "C:\Users\BSthun\Downloads\Book1.csv"
   ```
+- Export to CSV
+  ```
+  go run -buildvcs=true ./command export
+  ```

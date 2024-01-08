@@ -21,5 +21,7 @@ func main() {
 		function.Clear()
 	case "import":
 		function.Import()
+	case "export":
+		function.Export()
 	}
 }
