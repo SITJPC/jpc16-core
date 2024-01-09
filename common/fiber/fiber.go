@@ -31,6 +31,10 @@ func Init() {
 	apiGroup.Use(middleware.Recover())
 	endpoint.Init(apiGroup)
 
+	// Register websocket endpoints
+	wsGroup := app.Group("ws/")
+	InitWs(wsGroup)
+
 	// Register swagger endpoint
 	swaggerGroup := app.Group("swagger/")
 	swagger.Init(swaggerGroup)

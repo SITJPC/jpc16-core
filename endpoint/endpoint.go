@@ -5,11 +5,15 @@ import (
 
 	middleware "jpc16-core/endpoint/_middleware"
 	operateEndpoint "jpc16-core/endpoint/operate"
+	playEndpoint "jpc16-core/endpoint/play"
 
 	"jpc16-core/endpoint/leaderboard"
 )
 
 func Init(router fiber.Router) {
+	// * Middleware
+	router.Use(middleware.ContextMiddleware)
+
 	// * Leaderboard group
 	leaderboard := router.Group("/leaderboard")
 	leaderboard.Get("/state", leaderboardEndpoint.HandleGetState)
@@ -18,4 +22,9 @@ func Init(router fiber.Router) {
 	operate := router.Group("/operate", middleware.GameMiddleware)
 	operate.Get("/player", operateEndpoint.HandleGetPlayer)
 	operate.Post("/score/player", operateEndpoint.HandleAddPlayerScore)
+
+	// * Play group
+	play := router.Group("/play")
+	play.Post("/pin", playEndpoint.HandleEnterPin)
+	play.Post("/pair", middleware.PlayerMiddleware(), playEndpoint.HandlePair)
 }

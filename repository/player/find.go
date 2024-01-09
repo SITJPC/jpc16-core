@@ -9,6 +9,14 @@ import (
 	"jpc16-core/type/response"
 )
 
+func FindById(id primitive.ObjectID) (*collection.Player, *response.ErrorInstance) {
+	player := new(collection.Player)
+	if err := mng.PlayerCollection.FindByID(id, player); err != nil {
+		return nil, response.Error(true, "Unable to find player", err)
+	}
+	return player, nil
+}
+
 func FindByInfo(nickname string, groupId *primitive.ObjectID) (*collection.Player, *response.ErrorInstance) {
 	player := new(collection.Player)
 	if err := mng.PlayerCollection.First(bson.M{
@@ -18,4 +26,16 @@ func FindByInfo(nickname string, groupId *primitive.ObjectID) (*collection.Playe
 		return nil, response.Error(true, "Unable to find player", err)
 	}
 	return player, nil
+}
+
+func FindManyById[T primitive.ObjectID | *primitive.ObjectID](ids []T) ([]*collection.Player, *response.ErrorInstance) {
+	players := make([]*collection.Player, 0)
+	if err := mng.PlayerCollection.SimpleFind(&players, bson.M{
+		"_id": bson.M{
+			"$in": ids,
+		},
+	}); err != nil {
+		return nil, response.Error(true, "Unable to find players", err)
+	}
+	return players, nil
 }

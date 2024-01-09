@@ -87,6 +87,7 @@ func PlayerImport() {
 		player := &collection.Player{
 			Nickname: &nickname,
 			GroupId:  group.ID,
+			TeamId:   nil,
 			Pin:      pin,
 		}
 		if err := mng.PlayerCollection.Create(player); err != nil {
