@@ -18,5 +18,7 @@ func EmitPlayerState(ct context.Context) {
 	// * Check player assigned to a team
 	if player.TeamId == nil {
 		GetPlayerPair(ct)
+	} else {
+		GetPlayerLobby(ct)
 	}
 }

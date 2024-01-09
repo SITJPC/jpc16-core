@@ -27,4 +27,5 @@ func Init(router fiber.Router) {
 	play := router.Group("/play")
 	play.Post("/pin", playEndpoint.HandleEnterPin)
 	play.Post("/pair", middleware.PlayerMiddleware(), playEndpoint.HandlePair)
+	play.Post("/team/create", middleware.PlayerMiddleware(), playEndpoint.HandleCreateTeam)
 }

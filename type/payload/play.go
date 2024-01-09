@@ -1,7 +1,5 @@
 package payload
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type PinBody struct {
 	Pin *string `json:"pin" validate:"len=6"`
 }
@@ -11,5 +9,9 @@ type PinTokenResponse struct {
 }
 
 type PairBody struct {
-	PlayerId *primitive.ObjectID `json:"playerId" validate:"required"`
+	Pin *string `json:"pin" validate:"len=6"`
+}
+
+type TeamNameBody struct {
+	TeamName *string `json:"teamName" validate:"required"`
 }

@@ -3,7 +3,10 @@ package play
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"jpc16-core/instance/websocket"
+	"jpc16-core/repository/group"
 	"jpc16-core/repository/player"
 	"jpc16-core/type/collection"
 	"jpc16-core/type/payload"
@@ -17,7 +20,7 @@ func GetPlayerPair(ct context.Context) {
 	player := ct.Value("player").(*collection.Player)
 
 	// * Find group
-	group, err := playerRepo.FindGroupById(*player.GroupId)
+	group, err := groupRepo.FindGroupById(*player.GroupId)
 	if err != nil {
 		log.Error("Unable to find group", err)
 		return
@@ -28,6 +31,14 @@ func GetPlayerPair(ct context.Context) {
 	if err != nil {
 		log.Error("Unable to find player pair", err)
 		return
+	}
+
+	// * Filter out player
+	var filteredPairs []*primitive.ObjectID
+	for _, pair := range pairs {
+		if pair.Hex() != player.ID.Hex() {
+			filteredPairs = append(filteredPairs, pair)
+		}
 	}
 
 	// * Get player info
@@ -51,9 +62,9 @@ func GetPlayerPair(ct context.Context) {
 		Payload: map[string]any{
 			"page": "pair",
 			"profile": map[string]any{
-				"nickname":  player.Nickname,
-				"groupNo":   group.Number,
-				"groupName": group.Name,
+				"nickname":    player.Nickname,
+				"groupNumber": group.Number,
+				"groupName":   group.Name,
 			},
 			"teamPairs": mappedPlayerPairs,
 		},

@@ -51,14 +51,41 @@ func HandlePair(c *fiber.Ctx) error {
 	}
 
 	// * Find added pair
-	paired, err := playerRepo.FindPair(player.ID)
+	pairs, err := playerRepo.FindPair(player.ID)
 	if err != nil {
 		return err
 	}
 
+	// * Check if pair quota is reached
+	if len(pairs) >= 3 {
+		return response.Error(true, "Pair quota reached")
+	}
+
+	// * Check target player condition
+	targetPlayer, err := playerRepo.FindByPin(*body.Pin)
+	if err != nil {
+		return err
+	}
+
+	// * Check if target player is paired
+	if targetPlayer.TeamId != nil {
+		return response.Error(true, "Target player already assigned to a team")
+	}
+
+	// * Find new player pair
+	targetPairs, err := playerRepo.FindPair(targetPlayer.ID)
+	if err != nil {
+		return err
+	}
+
+	// * Check merged pair
+	if len(targetPairs)+len(pairs) > 3 {
+		return response.Error(true, "Merged pair has more than 3 members")
+	}
+
 	// * Check if player is added
-	for _, pair := range paired {
-		if pair.Hex() == body.PlayerId.Hex() {
+	for _, pair := range pairs {
+		if pair.Hex() == targetPlayer.ID.Hex() {
 			return response.Error(true, "Player already added to a pair")
 		}
 	}
@@ -66,7 +93,7 @@ func HandlePair(c *fiber.Ctx) error {
 	// * Create pair
 	pair := &collection.TeamPair{
 		AdderId: player.ID,
-		AddedId: body.PlayerId,
+		AddedId: targetPlayer.ID,
 		Active:  value.Ptr(true),
 	}
 	if err := mng.TeamPairCollection.Create(pair); err != nil {

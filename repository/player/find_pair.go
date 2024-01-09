@@ -71,9 +71,6 @@ func FindPair(playerId *primitive.ObjectID) ([]*primitive.ObjectID, *response.Er
 	// * Construct player ids
 	playerIds = make([]*primitive.ObjectID, 0)
 	for k := range playerMap {
-		if k.Hex() == playerId.Hex() {
-			continue
-		}
 		playerIds = append(playerIds, value.Ptr(k))
 	}
 

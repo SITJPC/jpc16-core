@@ -28,7 +28,7 @@ func Serve(conn *websocket.Conn) {
 	ct = context.WithValue(ct, "playerId", playerIdObj)
 
 	// * Validate player
-	player, errr := playerRepo.FindById(playerIdObj)
+	player, errr := playerRepo.FindById(&playerIdObj)
 	if errr != nil {
 		log.Error("Unable to find player", err)
 		return
