@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"jpc16-core/command/function"
+	"jpc16-core/_command/function"
 	"jpc16-core/common/config"
 	"jpc16-core/common/mng"
 )
