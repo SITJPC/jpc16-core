@@ -29,6 +29,7 @@ func Init() {
 	// Register API endpoints
 	apiGroup := app.Group("api/")
 	apiGroup.Use(middleware.Recover())
+	apiGroup.Use(middleware.Cors())
 	endpoint.Init(apiGroup)
 
 	// Register websocket endpoints
