@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"jpc16-core/common/mng"
 	"jpc16-core/type/collection"
 	"jpc16-core/type/payload"
@@ -51,6 +52,12 @@ func HandleGetPlayer(c *fiber.Ctx) error {
 		})
 	}
 
+	// * Iterate group map
+	groupPlayers := make([]*payload.GroupPlayer, 0)
+	for _, groupPlayer := range groupMap {
+		groupPlayers = append(groupPlayers, groupPlayer)
+	}
+
 	// * Return response
-	return c.JSON(response.Info(groupMap))
+	return c.JSON(response.Info(groupPlayers))
 }
