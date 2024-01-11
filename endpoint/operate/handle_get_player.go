@@ -27,6 +27,18 @@ func HandleGetPlayer(c *fiber.Ctx) error {
 		return response.Error(true, "Unable to find teams", err)
 	}
 
+	// * Find groups
+	var groups []*collection.Group
+	if err := mng.GroupCollection.SimpleFind(&groups, bson.M{}); err != nil {
+		return response.Error(true, "Unable to find groups", err)
+	}
+
+	// * Construct group map
+	groupMap := make(map[primitive.ObjectID]*collection.Group)
+	for _, group := range groups {
+		groupMap[*group.ID] = group
+	}
+
 	// * Get players
 	var players []*collection.Player
 	if err := mng.PlayerCollection.SimpleFind(
@@ -57,7 +69,7 @@ func HandleGetPlayer(c *fiber.Ctx) error {
 			Id:        player.ID,
 			Nickname:  player.Nickname,
 			Name:      nil,
-			GroupName: nil,
+			GroupName: groupMap[*player.GroupId].Name,
 		})
 	}
 
