@@ -45,13 +45,13 @@ func Talk(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
 			}
 		}
 
-		if args[1] == "s" {
+		if args[1] == "sa" || args[1] == "sb" {
 			if _, err := mng.MiniGameTalkConfigCollection.UpdateOne(
 				mgm.Ctx(),
 				bson.M{},
 				bson.M{
 					"$set": bson.M{
-						"spectatorChannelId": m.ChannelID,
+						"spectator" + strings.ToUpper(args[1][1:]) + "ChannelId": m.ChannelID,
 					},
 				}); err != nil {
 				if _, err := s.ChannelMessageSend(m.ChannelID, "Unable to update config"); err != nil {

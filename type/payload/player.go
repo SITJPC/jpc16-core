@@ -2,8 +2,8 @@ package payload
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type GroupPlayer struct {
-	GroupId *primitive.ObjectID `json:"groupId"`
+type TeamPlayer struct {
+	TeamId  *primitive.ObjectID `json:"teamId"`
 	Name    *string             `json:"name"`
 	Number  *int64              `json:"number"`
 	Players []*Player           `json:"players"`

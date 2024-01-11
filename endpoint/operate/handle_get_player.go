@@ -21,10 +21,10 @@ import (
 // @Failure 400 {object} response.ErrorResponse
 // @Router /operate/player [get]
 func HandleGetPlayer(c *fiber.Ctx) error {
-	// * Get groups
-	var groups []*collection.Group
-	if err := mng.GroupCollection.SimpleFind(&groups, bson.M{}); err != nil {
-		return response.Error(true, "Unable to get groups", err)
+	// * Find teams
+	var teams []*collection.Team
+	if err := mng.TeamCollection.SimpleFind(&teams, bson.M{}); err != nil {
+		return response.Error(true, "Unable to find teams", err)
 	}
 
 	// * Get players
@@ -34,19 +34,19 @@ func HandleGetPlayer(c *fiber.Ctx) error {
 	}
 
 	// * Create group map
-	groupMap := make(map[primitive.ObjectID]*payload.GroupPlayer)
-	for _, group := range groups {
-		groupMap[*group.ID] = &payload.GroupPlayer{
-			GroupId: group.ID,
-			Name:    group.Name,
-			Number:  group.Number,
+	teamMap := make(map[primitive.ObjectID]*payload.TeamPlayer)
+	for _, team := range teams {
+		teamMap[*team.ID] = &payload.TeamPlayer{
+			TeamId:  team.ID,
+			Name:    team.Name,
+			Number:  team.Number,
 			Players: nil,
 		}
 	}
 
 	// * Iterate players
 	for _, player := range players {
-		groupMap[*player.GroupId].Players = append(groupMap[*player.GroupId].Players, &payload.Player{
+		teamMap[*player.TeamId].Players = append(teamMap[*player.TeamId].Players, &payload.Player{
 			Id:        player.ID,
 			Nickname:  player.Nickname,
 			Name:      nil,
@@ -55,11 +55,11 @@ func HandleGetPlayer(c *fiber.Ctx) error {
 	}
 
 	// * Iterate group map
-	groupPlayers := make([]*payload.GroupPlayer, 0)
-	for _, groupPlayer := range groupMap {
-		groupPlayers = append(groupPlayers, groupPlayer)
+	teamPlayers := make([]*payload.TeamPlayer, 0)
+	for _, teamPlayer := range teamMap {
+		teamPlayers = append(teamPlayers, teamPlayer)
 	}
 
 	// * Return response
-	return c.JSON(response.Info(groupPlayers))
+	return c.JSON(response.Info(teamPlayers))
 }
