@@ -49,7 +49,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// * Split message into arguments
 	args := strings.Split(m.Content, " ")
 	if !strings.HasPrefix(args[0], "///") {
-		talk.InTalk(s, m, m.Content)
+		talk.InTalk(s, m)
 		return
 	}
 

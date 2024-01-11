@@ -13,7 +13,7 @@ import (
 type MiniGameTalkMessage struct {
 	mh.ModelBase `bson:"-,inline"`
 	SessionId    *primitive.ObjectID `bson:"sessionId,omitempty"`
-	TeamId       *string             `bson:"teamId,omitempty"`
+	Team         *string             `bson:"team,omitempty"`
 	Message      *string             `bson:"message,omitempty"`
 	Elapsed      *time.Duration      `bson:"elapsed,omitempty"`
 	Score        *int64              `bson:"score,omitempty"`

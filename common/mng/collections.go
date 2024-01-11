@@ -12,6 +12,7 @@ var GameCollection *mgm.Collection
 var ScoreCollection *mgm.Collection
 var TeamCollection *mgm.Collection
 var TeamPairCollection *mgm.Collection
+var MiniGameTalkConfigCollection *mgm.Collection
 var MiniGameTalkSessionCollection *mgm.Collection
 var MiniGameTalkMessageCollection *mgm.Collection
 
@@ -22,6 +23,7 @@ func Collection() {
 	TeamPairCollection = mgm.Coll(new(collection.TeamPair))
 	GameCollection = mgm.Coll(new(collection.Game))
 	ScoreCollection = mgm.Coll(new(collection.Score))
+	MiniGameTalkConfigCollection = mgm.Coll(new(collection.MiniGameTalkConfig))
 	MiniGameTalkSessionCollection = mgm.Coll(new(collection.MiniGameTalkSession))
 	MiniGameTalkMessageCollection = mgm.Coll(new(collection.MiniGameTalkMessage))
 
