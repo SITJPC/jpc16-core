@@ -18,11 +18,11 @@ func FindById(id *primitive.ObjectID) (*collection.Player, *response.ErrorInstan
 	return player, nil
 }
 
-func FindByInfo(nickname string, groupId *primitive.ObjectID) (*collection.Player, *response.ErrorInstance) {
+func FindByInfo(nickname string, teamId *primitive.ObjectID) (*collection.Player, *response.ErrorInstance) {
 	player := new(collection.Player)
 	if err := mng.PlayerCollection.First(bson.M{
 		"nickname": nickname,
-		"groupId":  groupId,
+		"teamId":   teamId,
 	}, player); err != nil {
 		return nil, response.Error(true, "Unable to find player", err)
 	}
