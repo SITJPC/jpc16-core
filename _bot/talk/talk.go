@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/kamva/mgm/v3"
@@ -100,55 +99,60 @@ func Talk(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
 			}
 		}
 
-		if _, err := s.ChannelMessageSend(m.ChannelID, "Session started"); err != nil {
-			log.Error("Unable to send message", err)
-		}
-	}
-
-	if args[0] == "end" {
-		// * Check current running session
-		session := new(collection.MiniGameTalkSession)
-		if err := mng.MiniGameTalkSessionCollection.First(
-			bson.M{
-				"startedAt": bson.M{"$exists": true},
-				"endedAt":   bson.M{"$exists": false},
-			},
-			session); err != nil {
-			if _, err := s.ChannelMessageSend(m.ChannelID, "No session is running"); err != nil {
-				log.Error("Unable to send message", err)
-			}
-			return
-		}
-
-		// * Update session
-		if _, err := mng.MiniGameTalkSessionCollection.UpdateByID(
-			mgm.Ctx(),
-			session.ID,
-			bson.M{
-				"$set": bson.M{
-					"endedAt": time.Now(),
-				},
-			},
-		); err != nil {
-			if _, err := s.ChannelMessageSend(m.ChannelID, "Unable to update session"); err != nil {
-				log.Error("Unable to send message", err)
-			}
-		}
-		// * Query active config
+		// * Find config
 		config := new(collection.MiniGameTalkConfig)
-		if err := mng.MiniGameTalkConfigCollection.First(
-			bson.M{},
-			config,
-		); err != nil {
+		if err := mng.MiniGameTalkConfigCollection.First(bson.M{}, config); err != nil {
+			log.Error("Unable to find config", err)
+			if _, err := s.ChannelMessageSend(m.ChannelID, "Unable to find config"); err != nil {
+				log.Error("Unable to send message", err)
+			}
 			return
-		}
-
-		if _, err := s.ChannelMessageSend(m.ChannelID, "Session ended"); err != nil {
-			log.Error("Unable to send message", err)
 		}
 
 		embed := &discordgo.MessageEmbed{
-			Title: "Session ended",
+			Title: "Session started",
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:   "Team A",
+					Value:  *session.WordsA[0],
+					Inline: false,
+				},
+				{
+					Name:   "Team B",
+					Value:  *session.WordsB[0],
+					Inline: false,
+				},
+			},
+		}
+		if _, err := s.ChannelMessageSendEmbed(m.ChannelID, embed); err != nil {
+			log.Error("Unable to send message", err)
+		}
+
+		embed = &discordgo.MessageEmbed{
+			Title:       "Session started",
+			Description: "Your word is **" + *session.WordsA[len(session.WordsA)-1] + "**",
+			Author: &discordgo.MessageEmbedAuthor{
+				Name: "Team A",
+			},
+		}
+
+		if _, err := s.ChannelMessageSendEmbed(*config.SpectatorAChannelId, embed); err != nil {
+			log.Error("Unable to send message", err)
+		}
+
+		embed = &discordgo.MessageEmbed{
+			Title:       "Session started",
+			Description: "Your word is **" + *session.WordsB[len(session.WordsB)-1] + "**" + "\n" + "You can change your word by typing `change`",
+			Author: &discordgo.MessageEmbedAuthor{
+				Name: "Team B",
+			},
+		}
+		if _, err := s.ChannelMessageSendEmbed(*config.SpectatorBChannelId, embed); err != nil {
+			log.Error("Unable to send message", err)
+		}
+
+		embed = &discordgo.MessageEmbed{
+			Title: "Session started",
 		}
 		if _, err := s.ChannelMessageSendEmbed(*config.TeamAChannelId, embed); err != nil {
 			log.Error("Unable to send message", err)

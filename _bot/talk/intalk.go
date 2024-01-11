@@ -2,11 +2,13 @@ package talk
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/hyperjumptech/beda"
+	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -29,11 +31,61 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// * Check valid channel
 	var team string
-	if m.ChannelID == *config.TeamAChannelId {
+	if m.ChannelID == *config.TeamAChannelId || m.ChannelID == *config.SpectatorAChannelId {
 		team = "A"
-	} else if m.ChannelID == *config.TeamBChannelId {
+	} else if m.ChannelID == *config.TeamBChannelId || m.ChannelID == *config.SpectatorBChannelId {
 		team = "B"
 	} else {
+		return
+	}
+
+	// * Case of change word
+	if m.ChannelID == *config.SpectatorAChannelId || m.ChannelID == *config.SpectatorBChannelId {
+		if m.Content != "change" {
+			return
+		}
+		// * Query active session
+		session := new(collection.MiniGameTalkSession)
+		if err := mng.MiniGameTalkSessionCollection.First(
+			bson.M{
+				"endedAt": bson.M{"$exists": false},
+			},
+			session,
+			&options.FindOneOptions{
+				Sort: bson.M{
+					"createdAt": -1,
+				},
+			},
+		); err != nil {
+			if _, err := s.ChannelMessageSend(m.ChannelID, "Unable to find active session"); err != nil {
+				log.Error("Unable to send message", err)
+			}
+		}
+
+		// * Generate word
+		word := GetWord()
+		if _, err := mng.MiniGameTalkSessionCollection.UpdateOne(
+			mgm.Ctx(),
+			bson.M{
+				"_id": session.ID,
+			},
+			bson.M{
+				"$push": bson.M{
+					"words" + team: word,
+				},
+			},
+		); err != nil {
+			log.Error("Unable to update session", err)
+		}
+
+		// * Send message
+		embed := &discordgo.MessageEmbed{
+			Title:       "New word generated",
+			Description: fmt.Sprintf("Your new word is **%s**", word),
+		}
+		if _, err := s.ChannelMessageSendEmbed(m.ChannelID, embed); err != nil {
+			log.Error("Unable to send message", err)
+		}
 		return
 	}
 
@@ -42,6 +94,11 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if err := mng.MiniGameTalkSessionCollection.First(
 		bson.M{},
 		session,
+		&options.FindOneOptions{
+			Sort: bson.M{
+				"createdAt": -1,
+			},
+		},
 	); err != nil {
 		return
 	}
@@ -50,8 +107,8 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 	content := strings.ToLower(m.Content)
 
 	// * Calculate word difference
-	pairA := beda.NewStringDiff(content, *session.WordA)
-	pairB := beda.NewStringDiff(content, *session.WordB)
+	pairA := beda.NewStringDiff(content, *session.WordsA[len(session.WordsA)-1])
+	pairB := beda.NewStringDiff(content, *session.WordsB[len(session.WordsB)-1])
 	lDistA := pairA.LevenshteinDistance()
 	ldDistA := pairA.DamerauLevenshteinDistance(1, 0, 1, 1)
 	liDistA := pairA.DamerauLevenshteinDistance(0, 1, 1, 1)
@@ -70,7 +127,12 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 		Team:      &team,
 		Message:   &content,
 		Elapsed:   value.Ptr(time.Now().Sub(*session.CreatedAt)),
-		Score:     value.Ptr(int64(jDistA * 1000)),
+		Score:     nil,
+	}
+	if team == "A" {
+		message.Score = value.Ptr(int64(jDistA * 1000))
+	} else {
+		message.Score = value.Ptr(int64(jDistB * 1000))
 	}
 	if err := mng.MiniGameTalkMessageCollection.Create(message); err != nil {
 		log.Error("Unable to create message", err)
@@ -91,6 +153,10 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}); err != nil {
 		log.Error("Unable to query high score", err)
 	}
+	var highScoreAValue int64
+	if highScoreA.Score != nil {
+		highScoreAValue = *highScoreA.Score
+	}
 
 	// * Query high score
 	highScoreB := new(collection.MiniGameTalkMessage)
@@ -106,6 +172,10 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 			},
 		}); err != nil {
 		log.Error("Unable to query high score", err)
+	}
+	var highScoreBValue int64
+	if highScoreB.Score != nil {
+		highScoreBValue = *highScoreB.Score
 	}
 
 	// * Construct color
@@ -185,26 +255,22 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 		Fields: []*discordgo.MessageEmbedField{
 			{
 				Name:   fmt.Sprintf("Latest Score (Team %s)", team),
-				Value:  fmt.Sprintf("%d", int(jDistA*1000)),
+				Value:  strconv.FormatInt(*message.Score, 10),
 				Inline: true,
 			},
 		},
 	}
 
-	if highScoreA.Score != nil {
-		embed3.Fields = append(embed3.Fields, &discordgo.MessageEmbedField{
-			Name:   "Team A High Score",
-			Value:  fmt.Sprintf("%d", *highScoreA.Score),
-			Inline: true,
-		})
-	}
-	if highScoreB.Score != nil {
-		embed3.Fields = append(embed3.Fields, &discordgo.MessageEmbedField{
-			Name:   "Team B High Score",
-			Value:  fmt.Sprintf("%d", *highScoreB.Score),
-			Inline: true,
-		})
-	}
+	embed3.Fields = append(embed3.Fields, &discordgo.MessageEmbedField{
+		Name:   "Team A High Score",
+		Value:  fmt.Sprintf("%d", highScoreAValue),
+		Inline: true,
+	})
+	embed3.Fields = append(embed3.Fields, &discordgo.MessageEmbedField{
+		Name:   "Team B High Score",
+		Value:  fmt.Sprintf("%d", highScoreBValue),
+		Inline: true,
+	})
 
 	if _, err := s.ChannelMessageSendEmbed(m.ChannelID, embed); err != nil {
 		log.Error("Unable to send message", err)
@@ -217,23 +283,45 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// * End game
-	if lDistA == 0 && m.ChannelID == *config.TeamAChannelId {
+	if (lDistA == 0 || lDistB == 0) && m.ChannelID == *config.TeamAChannelId {
+		if _, err := mng.MiniGameTalkMessageCollection.UpdateOne(
+			mgm.Ctx(),
+			bson.M{
+				"_id": message.ID,
+			},
+			bson.M{
+				"$set": bson.M{
+					"score": value.Ptr(int64(1000)),
+				},
+			},
+		); err != nil {
+			log.Error("Unable to update message", err)
+		}
+
 		embed := &discordgo.MessageEmbed{
 			Title: "Game ended, team A won!",
 			Color: 0xFFA500,
 			Fields: []*discordgo.MessageEmbedField{
 				{
-					Name:   "Word A",
-					Value:  fmt.Sprintf("```%s```", *session.WordA),
+					Name:   "Team A's word",
+					Value:  fmt.Sprintf("```%s```", *session.WordsA[len(session.WordsA)-1]),
 					Inline: false,
 				},
 				{
-					Name:   "Word B",
-					Value:  fmt.Sprintf("```%s```", *session.WordB),
+					Name:   "Team A's score",
+					Value:  fmt.Sprintf("```%d```", 1000),
+					Inline: true,
+				},
+				{
+					Name:   "Team B's word",
+					Value:  fmt.Sprintf("```%s```", *session.WordsB[len(session.WordsB)-1]),
 					Inline: false,
 				},
+				{
+					Name:  "Team B's score",
+					Value: fmt.Sprintf("```%d```", highScoreBValue),
+				},
 			},
-			Description: fmt.Sprintf("Your score is %d", jDistA*1000),
 		}
 		if _, err := s.ChannelMessageSendEmbed(*config.TeamAChannelId, embed); err != nil {
 			log.Error("Unable to send message", err)
@@ -241,22 +329,60 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if _, err := s.ChannelMessageSendEmbed(*config.TeamBChannelId, embed); err != nil {
 			log.Error("Unable to send message", err)
 		}
+
+		// * End session
+		if _, err := mng.MiniGameTalkSessionCollection.UpdateOne(
+			mgm.Ctx(),
+			bson.M{
+				"_id": session.ID,
+			},
+			bson.M{
+				"$set": bson.M{
+					"endedAt": time.Now(),
+				},
+			},
+		); err != nil {
+			log.Error("Unable to update session", err)
+		}
 	}
 
-	if lDistB == 0 && m.ChannelID == *config.TeamBChannelId {
+	if (lDistA == 0 || lDistB == 0) && m.ChannelID == *config.TeamBChannelId {
+		if _, err := mng.MiniGameTalkMessageCollection.UpdateOne(
+			mgm.Ctx(),
+			bson.M{
+				"_id": message.ID,
+			},
+			bson.M{
+				"$set": bson.M{
+					"score": value.Ptr(int64(1000)),
+				},
+			},
+		); err != nil {
+			log.Error("Unable to update message", err)
+		}
+
 		embed := &discordgo.MessageEmbed{
 			Title: "Game ended, team B won!",
 			Color: 0xFFA500,
 			Fields: []*discordgo.MessageEmbedField{
 				{
-					Name:   "Word A",
-					Value:  fmt.Sprintf("```%s```", *session.WordA),
+					Name:   "Team A's word",
+					Value:  fmt.Sprintf("```%s```", *session.WordsA[len(session.WordsA)-1]),
 					Inline: false,
 				},
 				{
-					Name:   "Word B",
-					Value:  fmt.Sprintf("```%s```", *session.WordB),
+					Name:   "Team A's score",
+					Value:  fmt.Sprintf("```%d```", highScoreAValue),
+					Inline: true,
+				},
+				{
+					Name:   "Team B's word",
+					Value:  fmt.Sprintf("```%s```", *session.WordsB[len(session.WordsB)-1]),
 					Inline: false,
+				},
+				{
+					Name:  "Team B's score",
+					Value: fmt.Sprintf("```%d```", 1000),
 				},
 			},
 		}
@@ -265,6 +391,21 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		if _, err := s.ChannelMessageSendEmbed(*config.TeamBChannelId, embed); err != nil {
 			log.Error("Unable to send message", err)
+		}
+
+		// * End session
+		if _, err := mng.MiniGameTalkSessionCollection.UpdateOne(
+			mgm.Ctx(),
+			bson.M{
+				"_id": session.ID,
+			},
+			bson.M{
+				"$set": bson.M{
+					"endedAt": time.Now(),
+				},
+			},
+		); err != nil {
+			log.Error("Unable to update session", err)
 		}
 	}
 }
