@@ -46,7 +46,7 @@ func HandleCreateTeam(c *fiber.Ctx) error {
 	}
 
 	// * Check if pair is sufficient
-	if len(paired) < 3 {
+	if len(paired) < 2 {
 		return response.Error(true, "Insufficient pair members")
 	}
 

@@ -3,8 +3,6 @@ package play
 import (
 	"context"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"jpc16-core/instance/websocket"
 	"jpc16-core/repository/group"
 	"jpc16-core/repository/player"
@@ -31,14 +29,6 @@ func GetPlayerPair(ct context.Context) {
 	if err != nil {
 		log.Error("Unable to find player pair", err)
 		return
-	}
-
-	// * Filter out player
-	var filteredPairs []*primitive.ObjectID
-	for _, pair := range pairs {
-		if pair.Hex() != player.ID.Hex() {
-			filteredPairs = append(filteredPairs, pair)
-		}
 	}
 
 	// * Get player info

@@ -57,7 +57,7 @@ func HandlePair(c *fiber.Ctx) error {
 	}
 
 	// * Check if pair quota is reached
-	if len(pairs) >= 3 {
+	if len(pairs) >= 2 {
 		return response.Error(true, "Pair quota reached")
 	}
 
@@ -79,8 +79,9 @@ func HandlePair(c *fiber.Ctx) error {
 	}
 
 	// * Check merged pair
-	if len(targetPairs)+len(pairs) > 3 {
-		return response.Error(true, "Merged pair has more than 3 members")
+	// TODO: targetPair addition logic `len(targetPairs)+len(pairs) > 3`
+	if len(targetPairs) > 2 {
+		return response.Error(true, "Merged pair has more than 2 members")
 	}
 
 	// * Check if player is added

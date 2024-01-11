@@ -68,6 +68,9 @@ func FindPair(playerId *primitive.ObjectID) ([]*primitive.ObjectID, *response.Er
 		playerMap[*pair.AddedId] = struct{}{}
 	}
 
+	// * Append player id
+	playerMap[*playerId] = struct{}{}
+
 	// * Construct player ids
 	playerIds = make([]*primitive.ObjectID, 0)
 	for k := range playerMap {

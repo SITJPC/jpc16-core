@@ -184,7 +184,7 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 		Title: "High Score",
 		Fields: []*discordgo.MessageEmbedField{
 			{
-				Name:   fmt.Sprintf("Latest score (Team %s)", team),
+				Name:   fmt.Sprintf("Latest Score (Team %s)", team),
 				Value:  fmt.Sprintf("%d", int(jDistA*1000)),
 				Inline: true,
 			},

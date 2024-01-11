@@ -65,6 +65,7 @@ func HandleEnterPin(c *fiber.Ctx) error {
 
 	// * Return response
 	return c.JSON(response.Info(&payload.PinTokenResponse{
-		Token: &token,
+		Token:    &token,
+		PlayerId: player.ID,
 	}))
 }
