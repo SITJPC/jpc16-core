@@ -9,6 +9,7 @@ import (
 	"jpc16-core/type/collection"
 	"jpc16-core/type/payload"
 	"jpc16-core/util/log"
+	"jpc16-core/util/value"
 )
 
 func GetPlayerLobby(ct context.Context) {
@@ -34,8 +35,10 @@ func GetPlayerLobby(ct context.Context) {
 	for _, teamMember := range teamMembers {
 		if teamMember.ID.Hex() != player.ID.Hex() {
 			mappedTeamMembers = append(mappedTeamMembers, &payload.Player{
-				Id:       teamMember.ID,
-				Nickname: teamMember.Nickname,
+				Id:        teamMember.ID,
+				Nickname:  teamMember.Nickname,
+				Name:      value.Ptr("Sirawit P."),
+				GroupName: value.Ptr("Group 111"),
 			})
 		}
 	}

@@ -10,6 +10,8 @@ type GroupPlayer struct {
 }
 
 type Player struct {
-	Id       *primitive.ObjectID `json:"id"`
-	Nickname *string             `json:"name"`
+	Id        *primitive.ObjectID `json:"id"`
+	Nickname  *string             `json:"name"`
+	Name      *string             `json:"fullname"`
+	GroupName *string             `json:"groupName"`
 }

@@ -3,13 +3,13 @@ package payload
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type LeaderboardState struct {
-	Groups []*LeaderboardStateGroup `json:"groups"`
+	Teams []*LeaderboardStateTeam `json:"groups"`
 }
 
-type LeaderboardStateGroup struct {
+type LeaderboardStateTeam struct {
 	No             *int                              `json:"no"`
-	GroupId        *primitive.ObjectID               `json:"groupId"`
-	GroupName      *string                           `json:"groupName"`
+	TeamNumber     *int64                            `json:"teamNumber"`
+	TeamName       *string                           `json:"teamName"`
 	Score          *int64                            `json:"score"`
 	ScoreBreakdown []*LeaderboardStateScoreBreakdown `json:"scoreBreakdown"`
 	Participate    *int64                            `json:"participate"`

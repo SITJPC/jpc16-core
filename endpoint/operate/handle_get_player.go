@@ -47,8 +47,10 @@ func HandleGetPlayer(c *fiber.Ctx) error {
 	// * Iterate players
 	for _, player := range players {
 		groupMap[*player.GroupId].Players = append(groupMap[*player.GroupId].Players, &payload.Player{
-			Id:       player.ID,
-			Nickname: player.Nickname,
+			Id:        player.ID,
+			Nickname:  player.Nickname,
+			Name:      nil,
+			GroupName: nil,
 		})
 	}
 

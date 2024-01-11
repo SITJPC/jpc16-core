@@ -2,6 +2,7 @@ package operateEndpoint
 
 import (
 	"github.com/gofiber/fiber/v2"
+
 	groupRepo "jpc16-core/repository/group"
 
 	"jpc16-core/common/mng"
@@ -35,7 +36,7 @@ func HandleAddPlayerScoreRoblox(c *fiber.Ctx) error {
 		return err
 	}
 
-	//* Find group
+	// * Find group
 	group, err := groupRepo.FindGroupId(body.GroupNo)
 	if err != nil {
 		return err
@@ -43,9 +44,9 @@ func HandleAddPlayerScoreRoblox(c *fiber.Ctx) error {
 
 	// * Create score
 	score := &collection.Score{
-		GroupId: group.ID,
-		GameId:  game.ID,
-		Score:   body.Score,
+		TeamId: group.ID,
+		GameId: game.ID,
+		Score:  body.Score,
 	}
 	if err := mng.ScoreCollection.Create(score); err != nil {
 		return response.Error(true, "Unable to create score", err)

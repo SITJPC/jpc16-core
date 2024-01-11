@@ -41,8 +41,10 @@ func GetPlayerPair(ct context.Context) {
 	// * Map player pair
 	mappedPlayerPairs, _ := value.Iterate(playerPairs, func(player *collection.Player) (*payload.Player, *response.ErrorInstance) {
 		return &payload.Player{
-			Id:       player.ID,
-			Nickname: player.Nickname,
+			Id:        player.ID,
+			Nickname:  player.Nickname,
+			Name:      value.Ptr("Sirawit P."),
+			GroupName: value.Ptr("Group 111"),
 		}, nil
 	})
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
+	"jpc16-core/_bot/score"
 	"jpc16-core/_bot/talk"
 	cc "jpc16-core/common"
 	"jpc16-core/common/config"
@@ -66,6 +67,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	switch command {
 	case "talk":
 		talk.Talk(s, m, args[1:])
+	case "score":
+		score.Score(s, m, args[1:])
 	default:
 		if _, err := s.ChannelMessageSend(m.ChannelID, "Unknown command"); err != nil {
 			log.Error("Unable to send message", err)
