@@ -69,7 +69,7 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 		SessionId: session.ID,
 		Team:      &team,
 		Message:   &content,
-		Elapsed:   value.Ptr(time.Now().Sub(*session.StartedAt)),
+		Elapsed:   value.Ptr(time.Now().Sub(*session.CreatedAt)),
 		Score:     value.Ptr(int64(jDistA * 1000)),
 	}
 	if err := mng.MiniGameTalkMessageCollection.Create(message); err != nil {

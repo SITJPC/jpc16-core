@@ -11,11 +11,8 @@ import (
 
 type MiniGameTalkSession struct {
 	mh.ModelBase `bson:"-,inline"`
-	WordA        *string    `bson:"wordA,omitempty"`
-	WordB        *string    `bson:"wordB,omitempty"`
-	TeamAIds     []*string  `bson:"teamAIds,omitempty"`
-	TeamBIds     []*string  `bson:"teamBIds,omitempty"`
-	StartedAt    *time.Time `bson:"startedAt,omitempty"`
+	WordsA       []*string  `bson:"wordA,omitempty"`
+	WordsB       []*string  `bson:"wordB,omitempty"`
 	EndedAt      *time.Time `bson:"endedAt,omitempty"`
 }
 

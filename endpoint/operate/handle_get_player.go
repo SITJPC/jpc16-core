@@ -29,7 +29,14 @@ func HandleGetPlayer(c *fiber.Ctx) error {
 
 	// * Get players
 	var players []*collection.Player
-	if err := mng.PlayerCollection.SimpleFind(&players, bson.M{}); err != nil {
+	if err := mng.PlayerCollection.SimpleFind(
+		&players,
+		bson.M{
+			"teamId": bson.M{
+				"$exists": true,
+			},
+		},
+	); err != nil {
 		return response.Error(true, "Unable to get players", err)
 	}
 
