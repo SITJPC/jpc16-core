@@ -22,6 +22,7 @@ func Init(router fiber.Router) {
 	operate := router.Group("/operate", middleware.GameMiddleware)
 	operate.Get("/player", operateEndpoint.HandleGetPlayer)
 	operate.Post("/score/player", operateEndpoint.HandleAddPlayerScore)
+	operate.Post("/score/roblox", operateEndpoint.HandleAddPlayerScoreRoblox)
 
 	// * Play group
 	play := router.Group("/play")

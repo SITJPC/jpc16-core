@@ -10,6 +10,7 @@ import (
 
 type Score struct {
 	mh.ModelBase `bson:"-,inline"`
+	GroupId      *primitive.ObjectID `bson:"groupId,omitempty"`
 	PlayerId     *primitive.ObjectID `bson:"playerId,omitempty"`
 	GameId       *primitive.ObjectID `bson:"gameId,omitempty"`
 	Score        *int64              `bson:"score,omitempty"`
