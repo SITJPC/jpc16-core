@@ -1,6 +1,7 @@
 package talk
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/hyperjumptech/beda"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"jpc16-core/common/mng"
@@ -154,7 +156,7 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 			Sort: bson.M{
 				"score": -1,
 			},
-		}); err != nil {
+		}); err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
 		log.Error("Unable to query high score", err)
 	}
 	var highScoreAValue int64
