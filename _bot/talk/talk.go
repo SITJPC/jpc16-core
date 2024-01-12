@@ -33,7 +33,7 @@ func Talk(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
 		}
 
 		// * Update session
-		if args[1] == "a" || args[1] == "b" {
+		if args[1] == "a" || args[1] == "b" || args[1] == "c" || args[1] == "d" {
 			if _, err := mng.MiniGameTalkConfigCollection.UpdateOne(
 				mgm.Ctx(),
 				bson.M{},
@@ -48,7 +48,7 @@ func Talk(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
 			}
 		}
 
-		if args[1] == "sa" || args[1] == "sb" {
+		if args[1] == "sa" || args[1] == "sb" || args[1] == "sc" || args[1] == "sd" {
 			if _, err := mng.MiniGameTalkConfigCollection.UpdateOne(
 				mgm.Ctx(),
 				bson.M{},
@@ -111,6 +111,8 @@ func Talk(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
 		session = &collection.MiniGameTalkSession{
 			WordsA:  []*string{value.Ptr(GetWord(sentence))},
 			WordsB:  []*string{value.Ptr(GetWord(sentence))},
+			WordsC:  []*string{value.Ptr(GetWord(sentence))},
+			WordsD:  []*string{value.Ptr(GetWord(sentence))},
 			Mode:    &mode,
 			EndedAt: nil,
 		}
@@ -143,43 +145,52 @@ func Talk(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
 					Value:  *session.WordsB[0],
 					Inline: false,
 				},
+				{
+					Name:   "Team C",
+					Value:  *session.WordsC[0],
+					Inline: false,
+				},
+				{
+					Name:   "Team D",
+					Value:  *session.WordsD[0],
+					Inline: false,
+				},
 			},
 		}
 		if _, err := s.ChannelMessageSendEmbed(m.ChannelID, embed); err != nil {
 			log.Error("Unable to send message", err)
 		}
 
-		embed = &discordgo.MessageEmbed{
-			Title:       "Session started",
-			Description: "Your word is **" + *session.WordsA[len(session.WordsA)-1] + "**",
-			Author: &discordgo.MessageEmbedAuthor{
-				Name: "Team A",
-			},
-		}
-
-		if _, err := s.ChannelMessageSendEmbed(*config.SpectatorAChannelId, embed); err != nil {
-			log.Error("Unable to send message", err)
-		}
-
-		embed = &discordgo.MessageEmbed{
-			Title:       "Session started",
-			Description: "Your word is **" + *session.WordsB[len(session.WordsB)-1] + "**" + "\n" + "You can change your word by typing `change`",
-			Author: &discordgo.MessageEmbedAuthor{
-				Name: "Team B",
-			},
-		}
-		if _, err := s.ChannelMessageSendEmbed(*config.SpectatorBChannelId, embed); err != nil {
-			log.Error("Unable to send message", err)
+		wordSessions := [][]*string{session.WordsA, session.WordsB, session.WordsC, session.WordsD}
+		for i, channelId := range []*string{config.SpectatorAChannelId, config.SpectatorBChannelId, config.SpectatorCChannelId, config.SpectatorDChannelId} {
+			if channelId == nil {
+				continue
+			}
+			embed := &discordgo.MessageEmbed{
+				Title: "Session started",
+				Fields: []*discordgo.MessageEmbedField{
+					{
+						Name:   "Your word",
+						Value:  *wordSessions[i][0],
+						Inline: false,
+					},
+				},
+				Author: &discordgo.MessageEmbedAuthor{
+					Name: "Team " + string(rune('A'+i)),
+				},
+			}
+			if _, err := s.ChannelMessageSendEmbed(*channelId, embed); err != nil {
+				log.Error("Unable to send message", err)
+			}
 		}
 
 		embed = &discordgo.MessageEmbed{
 			Title: "Session started",
 		}
-		if _, err := s.ChannelMessageSendEmbed(*config.TeamAChannelId, embed); err != nil {
-			log.Error("Unable to send message", err)
-		}
-		if _, err := s.ChannelMessageSendEmbed(*config.TeamBChannelId, embed); err != nil {
-			log.Error("Unable to send message", err)
+		for _, channelId := range []*string{config.TeamAChannelId, config.TeamBChannelId, config.TeamCChannelId, config.TeamDChannelId} {
+			if _, err := s.ChannelMessageSendEmbed(*channelId, embed); err != nil {
+				log.Error("Unable to send message", err)
+			}
 		}
 	}
 }
