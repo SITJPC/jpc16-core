@@ -7,12 +7,9 @@ type LeaderboardState struct {
 }
 
 type LeaderboardStateTeam struct {
-	No             *int                              `json:"no"`
-	TeamNumber     *int64                            `json:"teamNumber"`
-	TeamName       *string                           `json:"teamName"`
-	Score          *int64                            `json:"score"`
-	ScoreBreakdown []*LeaderboardStateScoreBreakdown `json:"scoreBreakdown"`
-	Participate    *int64                            `json:"participate"`
+	No         *int    `json:"no"`
+	TeamNumber *int64  `json:"teamNumber"`
+	TeamName   *string `json:"teamName"`
 }
 
 type LeaderboardStateScoreBreakdown struct {

@@ -12,8 +12,12 @@ type MiniGameTalkConfig struct {
 	mh.ModelBase        `bson:"-,inline"`
 	TeamAChannelId      *string `bson:"teamAChannelId,omitempty"`
 	TeamBChannelId      *string `bson:"teamBChannelId,omitempty"`
+	TeamCChannelId      *string `bson:"teamCChannelId,omitempty"`
+	TeamDChannelId      *string `bson:"teamDChannelId,omitempty"`
 	SpectatorAChannelId *string `bson:"spectatorAChannelId,omitempty"`
 	SpectatorBChannelId *string `bson:"spectatorBChannelId,omitempty"`
+	SpectatorCChannelId *string `bson:"spectatorCChannelId,omitempty"`
+	SpectatorDChannelId *string `bson:"spectatorDChannelId,omitempty"`
 }
 
 func (r *MiniGameTalkConfig) Collection() *mgm.Collection {

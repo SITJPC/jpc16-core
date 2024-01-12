@@ -31,5 +31,7 @@ func main() {
 		if os.Args[2] == "import" {
 			function.GameImport()
 		}
+	case "config":
+		function.ConfigExport()
 	}
 }

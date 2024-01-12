@@ -11,6 +11,7 @@ import (
 type Player struct {
 	mh.ModelBase `bson:"-,inline"`
 	Nickname     *string             `bson:"nickname,omitempty"`
+	Name         *string             `bson:"name,omitempty"`
 	GroupId      *primitive.ObjectID `bson:"groupId,omitempty"`
 	TeamId       *primitive.ObjectID `bson:"teamId,omitempty"`
 	Pin          *string             `bson:"pin,omitempty"`

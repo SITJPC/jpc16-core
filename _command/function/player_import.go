@@ -53,14 +53,14 @@ func PlayerImport() {
 
 		// * Find existing group
 		group := new(collection.Group)
-		if err := mng.GroupCollection.First(bson.M{"name": row[1]}, group); errors.Is(err, mongo.ErrNoDocuments) {
+		if err := mng.GroupCollection.First(bson.M{"name": row[0]}, group); errors.Is(err, mongo.ErrNoDocuments) {
 			count, err := mng.GroupCollection.CountDocuments(mgm.Ctx(), bson.M{})
 			if err != nil {
 				log.Fatal("Failed to count groups", err)
 			}
 
 			group = &collection.Group{
-				Name:   value.Ptr(row[1]),
+				Name:   value.Ptr(row[0]),
 				Number: value.Ptr(count + 1),
 			}
 			if err := mng.GroupCollection.Create(group); err != nil {
@@ -69,7 +69,8 @@ func PlayerImport() {
 		}
 
 		// * Make first letter uppercase
-		nickname := strings.Title(row[0])
+		nickname := strings.Title(row[1])
+		name := row[2]
 
 		// * Generate pin
 		var pin *string
@@ -86,6 +87,7 @@ func PlayerImport() {
 		// * Create player
 		player := &collection.Player{
 			Nickname: &nickname,
+			Name:     &name,
 			GroupId:  group.ID,
 			TeamId:   nil,
 			Pin:      pin,
@@ -93,6 +95,8 @@ func PlayerImport() {
 		if err := mng.PlayerCollection.Create(player); err != nil {
 			log.Fatal("Failed to create player", err)
 		}
+
+		log.Debug("Created player", "nickname", nickname, "group", *group.Name)
 	}
 
 	log.Debug("Successfully imported players")
