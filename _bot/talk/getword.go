@@ -8,7 +8,7 @@ import (
 	"jpc16-core/util/text"
 )
 
-func GetWord() string {
+func GetWord(sentence bool) string {
 	// * Read file
 	bytes, err := os.ReadFile("resource/wordlist.txt")
 	if err != nil {
@@ -18,5 +18,18 @@ func GetWord() string {
 	// * Split by newline
 	lines := strings.Split(string(bytes), "\n")
 	index := text.Rand.Intn(len(lines))
-	return lines[index]
+	if sentence {
+		return lines[index]
+	}
+
+	// * Split by space
+	words := strings.Split(lines[index], " ")
+	var longWords []string
+	for _, word := range words {
+		if len(word) >= 6 {
+			longWords = append(longWords, word)
+		}
+	}
+	index = text.Rand.Intn(len(longWords))
+	return longWords[index]
 }

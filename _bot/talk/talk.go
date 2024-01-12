@@ -69,6 +69,26 @@ func Talk(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
 	}
 
 	if args[0] == "start" {
+		if len(args) < 2 {
+			if _, err := s.ChannelMessageSend(m.ChannelID, "Invalid arguments"); err != nil {
+				log.Error("Unable to send message", err)
+			}
+			return
+		}
+
+		mode := args[1]
+		var sentence bool
+		if mode == "sn" {
+			sentence = true
+		} else if mode == "wd" {
+			sentence = false
+		} else {
+			if _, err := s.ChannelMessageSend(m.ChannelID, "Invalid game mode arguments (sn / wd)"); err != nil {
+				log.Error("Unable to send message", err)
+			}
+			return
+		}
+
 		// * Check current running session
 		session := new(collection.MiniGameTalkSession)
 		if err := mng.MiniGameTalkSessionCollection.First(
@@ -89,8 +109,9 @@ func Talk(s *discordgo.Session, m *discordgo.MessageCreate, args []string) {
 
 		// * Update session
 		session = &collection.MiniGameTalkSession{
-			WordsA:  []*string{value.Ptr(GetWord())},
-			WordsB:  []*string{value.Ptr(GetWord())},
+			WordsA:  []*string{value.Ptr(GetWord(sentence))},
+			WordsB:  []*string{value.Ptr(GetWord(sentence))},
+			Mode:    &mode,
 			EndedAt: nil,
 		}
 		if err := mng.MiniGameTalkSessionCollection.Create(session); err != nil {

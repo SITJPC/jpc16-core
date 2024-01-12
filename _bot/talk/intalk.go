@@ -63,7 +63,11 @@ func InTalk(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		// * Generate word
-		word := GetWord()
+		var sentence bool
+		if *session.Mode == "sn" {
+			sentence = true
+		}
+		word := GetWord(sentence)
 		if _, err := mng.MiniGameTalkSessionCollection.UpdateOne(
 			mgm.Ctx(),
 			bson.M{

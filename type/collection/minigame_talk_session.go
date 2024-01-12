@@ -13,6 +13,7 @@ type MiniGameTalkSession struct {
 	mh.ModelBase `bson:"-,inline"`
 	WordsA       []*string  `bson:"wordsA,omitempty"`
 	WordsB       []*string  `bson:"wordsB,omitempty"`
+	Mode         *string    `bson:"mode,omitempty"`
 	EndedAt      *time.Time `bson:"endedAt,omitempty"`
 }
 
