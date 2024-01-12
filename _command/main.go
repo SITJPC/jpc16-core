@@ -27,6 +27,9 @@ func main() {
 		if os.Args[2] == "export" {
 			function.PlayerExport()
 		}
+		if os.Args[2] == "assign" {
+			function.PlayerAssign()
+		}
 	case "game":
 		if os.Args[2] == "import" {
 			function.GameImport()
