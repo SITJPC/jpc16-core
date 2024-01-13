@@ -6,7 +6,6 @@ import (
 	teamRepo "jpc16-core/repository/team"
 
 	"jpc16-core/common/mng"
-	playerRepo "jpc16-core/repository/player"
 	"jpc16-core/type/collection"
 	"jpc16-core/type/payload"
 	"jpc16-core/type/response"
@@ -43,18 +42,11 @@ func HandleAddPlayerScore(c *fiber.Ctx) error {
 		return err
 	}
 
-	// * Find player
-	player, err := playerRepo.FindByInfo(*body.Nickname, team.ID)
-	if err != nil {
-		return err
-	}
-
 	// * Create score
 	score := &collection.Score{
-		TeamId:   team.ID,
-		PlayerId: player.ID,
-		GameId:   game.ID,
-		Score:    body.Score,
+		TeamId: team.ID,
+		GameId: game.ID,
+		Score:  body.Score,
 	}
 	if err := mng.ScoreCollection.Create(score); err != nil {
 		return response.Error(true, "Unable to create score", err)
