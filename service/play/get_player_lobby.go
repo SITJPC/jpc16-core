@@ -3,13 +3,16 @@ package play
 import (
 	"context"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"jpc16-core/common/mng"
 	"jpc16-core/instance/websocket"
 	playerRepo "jpc16-core/repository/player"
 	teamRepo "jpc16-core/repository/team"
 	"jpc16-core/type/collection"
 	"jpc16-core/type/payload"
 	"jpc16-core/util/log"
-	"jpc16-core/util/value"
 )
 
 func GetPlayerLobby(ct context.Context) {
@@ -30,6 +33,18 @@ func GetPlayerLobby(ct context.Context) {
 		return
 	}
 
+	// * Find groups
+	var groups []*collection.Group
+	if err := mng.GroupCollection.SimpleFind(&groups, bson.M{}); err != nil {
+		log.Fatal("Unable to get groups", err)
+	}
+
+	// * Construct group map
+	groupMap := make(map[primitive.ObjectID]*collection.Group)
+	for _, group := range groups {
+		groupMap[*group.ID] = group
+	}
+
 	// * Construct team members
 	var mappedTeamMembers []*payload.Player
 	for _, teamMember := range teamMembers {
@@ -37,8 +52,8 @@ func GetPlayerLobby(ct context.Context) {
 			mappedTeamMembers = append(mappedTeamMembers, &payload.Player{
 				Id:        teamMember.ID,
 				Nickname:  teamMember.Nickname,
-				Name:      value.Ptr("Sirawit P."),
-				GroupName: value.Ptr("Group 111"),
+				Name:      teamMember.Name,
+				GroupName: groupMap[*teamMember.GroupId].Name,
 			})
 		}
 	}

@@ -1,6 +1,8 @@
 package operateEndpoint
 
 import (
+	"slices"
+
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -78,6 +80,16 @@ func HandleGetPlayer(c *fiber.Ctx) error {
 	for _, teamPlayer := range teamMap {
 		teamPlayers = append(teamPlayers, teamPlayer)
 	}
+
+	// * Sort team player by team number
+	slices.SortFunc(teamPlayers, func(a *payload.TeamPlayer, b *payload.TeamPlayer) int {
+		if *a.Number < *b.Number {
+			return -1
+		} else if *a.Number > *b.Number {
+			return 1
+		}
+		return 0
+	})
 
 	// * Return response
 	return c.JSON(response.Info(teamPlayers))
